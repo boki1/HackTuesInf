@@ -1,30 +1,49 @@
 version: "3.6"
 services:
-  test_gateway:
-    build: ./src/backend/test_gateway
+  gateway:
+    build: ./src/backend/gateway
     command: python main.py
     ports:
-      - "2001:2001"
+      - "6969:6969"
     networks:
-      - leminiskata
+      - lemniskata
 
-  test_service:
-    build: ./src/backend/test_service
+  weather_service:
+    build: ./src/backend/weather_service
     command: python main.py
     depends_on:
-      - test_gateway
+      - gateway
     ports:
-      - "2002:2002"
+      - "6971:6971"
     networks:
-      - leminiskata
+      - lemniskata
+
+  height_service:
+    build: ./src/backend/height_service
+    command: python main.py
+    depends_on:
+      - gateway
+    ports:
+      - "6972:6972"
+    networks:
+      - lemniskata
 
   redis_db:
     image: redis
     ports:
       - "6379:6379"
     networks:
-      - leminiskata
+      - lemniskata
+
+  weather_api:
+    image: vayer/lemniskata:weather_api
+    command: python main.py
+    ports:
+      - "60:60"
+    networks:
+      - lemniskata
+
 
 networks:
-    leminiskata:
+    lemniskata:
         driver: bridge

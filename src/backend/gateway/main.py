@@ -1,22 +1,40 @@
-# flask
-from flask import Flask, Response
-from flask import render_template, request, flash, redirect, url_for, session, jsonify, send_from_directory, abort
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects import postgresql
-from sqlalchemy import desc
-from dataclasses import dataclass
-from typing import List
-import werkzeug
-from werkzeug.exceptions import HTTPException
+import json
+from flask import Flask, jsonify, make_response, request
+from flask_cors import CORS
+import requests
+
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")
 def index():
-    return "leminiskata api index page"
+    return "lemniskata api index page"
+
+
+@app.route("/nasa/api/weather")
+def weatherApi():
+    response = requests.get(
+        'http://weather_api:60', json=request.get_json())
+    return response.json()
+
+
+@app.route("/getHeightMap", methods=['POST'])
+def getHeightMap():
+    # TODO read coordinates from json body, dl image for coordinates and pass it to service
+    response = requests.post(
+        'http://height_service:6972/generate/map/height', json=request.get_json())
+    return json.dumps(response.text[2:(len(response.text)-2)].split('\', \''))
+
+
+@app.route("/getWeatherMap", methods=['POST'])
+def getWeatherMap():
+    # TODO read coordinates from json body, dl image for coordinates and pass it to service
+    response = requests.post(
+        'http://weather_service:6971/generate/map/weather', json=request.get_json())
+    return json.dumps(response.text[2:(len(response.text)-2)].split('\', \''))
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+    app.run(host="0.0.0.0", port=6969)
